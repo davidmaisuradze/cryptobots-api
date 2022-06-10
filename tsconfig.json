@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es6",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "lib": ["esnext", "es7", "es2015", "es2015.promise", "es2017.object", "dom"],
+    "incremental": true
+  },
+  "include": ["migrations/*", "src/**/*", "test/**/*"],
+  "exclude": ["node_modules"]
+}
