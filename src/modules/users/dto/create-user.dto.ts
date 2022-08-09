@@ -1,43 +1,50 @@
-import { IsEmail, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
+import { IsEmail, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsPasswordConfirmedBy, IsUserAlreadyExists } from '../../../validators';
+import { IsUserAlreadyExists } from '../../../validators';
+import { AuthToken } from '../../auth/entities/auth.token.entity';
 
 export class CreateUserDto {
   @ApiProperty({
     description: 'First name',
     required: true,
   })
-  firstName: string;
+  @IsOptional()
+    firstName?: string;
 
   @ApiProperty({
     description: 'Last name',
     required: true,
   })
-  lastName: string;
+  @IsOptional()
+    lastName?: string;
 
   @ApiProperty({
     description: 'Email',
     required: true,
   })
   @IsOptional()
-  @IsNotEmpty()
   @IsEmail()
   @IsUserAlreadyExists()
-  email: string;
+    email?: string;
 
   @ApiProperty({
-    description: 'Password',
+    description: 'Address',
     required: true,
   })
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
+  @IsOptional()
+    address: string;
 
-  @IsPasswordConfirmedBy('password')
   @ApiProperty({
-    description: 'A password confirmation',
+    description: 'Nonce to sign auth',
     required: true,
   })
-  @IsNotEmpty()
-  passwordConfirmation: string;
+  @IsOptional()
+    signNonce?: number;
+
+  @ApiProperty({
+    description: 'Nonce to sign auth',
+    required: true,
+  })
+  @IsOptional()
+    token?: AuthToken;
 }

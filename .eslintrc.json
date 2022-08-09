@@ -1,0 +1,63 @@
+{
+  "plugins": ["import", "unused-imports", "eslint-plugin-jsdoc", "eslint-plugin-prefer-arrow"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/typescript",
+    "plugin:import/warnings"
+  ],
+  "rules": {
+    "unused-imports/no-unused-imports": "error",
+    "no-underscore-dangle": ["error", { "allow": ["_requestManager"] }],
+    "indent": ["error", 2],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "@typescript-eslint/naming-convention": [
+      "warn",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": true
+        }
+      }
+    ],
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/no-unsafe-assignment": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/no-unsafe-argument": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/restrict-template-expressions": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/no-explicit-any": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/no-unsafe-call": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/no-unsafe-member-access": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/no-unsafe-return": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/unbound-method": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/adjacent-overload-signatures": "warn",
+    // TODO: remove this rule and keep the one on recommended
+    "@typescript-eslint/explicit-member-accessibility": [
+      "warn",
+      {
+        "overrides": {
+          "constructors": "no-public",
+          "methods": "explicit",
+          "properties": "explicit"
+        }
+      }
+    ]
+  }
+}

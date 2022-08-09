@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 import { Allow } from 'class-validator';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { CoreEntity } from '../../application/entities/core.entity';
+import { AuthToken } from '../../auth/entities/auth.token.entity';
 
 @Exclude()
 @Entity('users')
-export class User {
+export class User extends CoreEntity {
   @ApiProperty({ readOnly: true })
   @Expose()
   @Allow()
@@ -13,7 +15,7 @@ export class User {
     type: 'varchar',
     nullable: true,
   })
-  firstName: string;
+    firstName: string;
 
   @ApiProperty({ readOnly: true })
   @Expose()
@@ -22,22 +24,37 @@ export class User {
     type: 'varchar',
     nullable: true,
   })
-  lastName: string;
+    lastName: string;
 
   @Column({
     type: 'varchar',
+    unique: true,
+  })
+    address: string;
+
+  @Column({
+    type: 'bigint',
     nullable: true,
   })
-  password: string;
+    signNonce: number;
+
+  @ApiProperty({ readOnly: true })
+  @OneToOne(() => AuthToken, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinColumn()
+  @Expose({ groups: ['showTokens'] })
+    token: AuthToken;
 
   @ApiProperty({ readOnly: true, type: 'string', format: 'email' })
   @Allow()
   @Expose()
   @Column({
     type: 'varchar',
-    unique: true,
+    nullable: true,
   })
-  email: string;
+    email: string;
 
   @Column({
     type: 'boolean',
@@ -45,11 +62,5 @@ export class User {
   })
   @Allow()
   @Expose()
-  isActive = false;
-
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  salt: string;
+    isActive = false;
 }

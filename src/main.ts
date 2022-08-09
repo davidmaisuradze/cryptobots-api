@@ -1,8 +1,13 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { Logger } from '@nestjs/common';
+import { inspect } from 'util';
+import { ApplicationContext } from './modules/application/application.context';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
-}
-bootstrap();
+process.on('unhandledRejection', (reason, p) => {
+  Logger.error(`Unhandled Rejection at: ${inspect(p)}, reason: ${reason}`);
+});
+
+void (async () => {
+  const app = await ApplicationContext();
+
+  await app.listen(process.env.APP_PORT || 3000);
+})();

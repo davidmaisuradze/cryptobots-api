@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isEmpty } from 'lodash';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -13,27 +14,62 @@ export class UsersService {
   ) {
 
   }
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+
+  async create(createUserDto: CreateUserDto) {
+    return await this.userRepository.save(this.userRepository.create(createUserDto));
   }
 
-  findAll() {
-    return `This action returns all users`;
+  public async save(user: User): Promise<User> {
+    return await this.userRepository.save(user);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findAll() {
+    return await this.userRepository.find();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findOneById(id: string) {
+    return await this.userRepository.findOne({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async findOneByAddress(address: string) {
+    return await this.userRepository.findOne({ where: { address } });
   }
 
-  public async findOneByEmail(email: string): Promise<User> {
-    return await this.userRepository.findOne({ email });
+  async findOneByEmail(email: string): Promise<User> {
+    return await this.userRepository.findOne({ where: { email } });
+  }
+
+  async update(address: string, updateUserDto: UpdateUserDto) {
+    const user = await this.checkIfUserExists(address);
+
+    const updatedUser = {
+      ...user,
+      ...updateUserDto,
+    } as User;
+    return await this.userRepository.save(updatedUser);
+  }
+
+  async remove(address: string) {
+    await this.checkIfUserExists(address);
+    return await this.userRepository.delete({ address });
+  }
+
+  public async nullifyToken(address: string): Promise<string> {
+    const user = await this.findOneByAddress(address);
+    if (!isEmpty(user)) {
+      const tokenId = user.token.id;
+      user.token = null;
+      await this.save(user);
+      return tokenId;
+    }
+  }
+
+  async checkIfUserExists(address: string) {
+    const user = await this.findOneByAddress(address);
+    if (!user) {
+      throw new Error('User not exists');
+    }
+
+    return user;
   }
 }
