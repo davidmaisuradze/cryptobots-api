@@ -8,43 +8,32 @@ export class CreateUserDto {
     description: 'First name',
     required: true,
   })
-  @IsOptional()
-    firstName?: string;
+  public firstName: string;
 
   @ApiProperty({
     description: 'Last name',
     required: true,
   })
-  @IsOptional()
-    lastName?: string;
+  public lastName: string;
 
   @ApiProperty({
     description: 'Email',
     required: true,
   })
-  @IsOptional()
   @IsEmail()
   @IsUserAlreadyExists()
-    email?: string;
+  public email: string;  
 
   @ApiProperty({
-    description: 'Address',
+    description: 'Password',
+    required: true,
+  })
+  public password: string;  
+
+  @ApiProperty({
+    description: 'Auth token',
     required: true,
   })
   @IsOptional()
-    address: string;
-
-  @ApiProperty({
-    description: 'Nonce to sign auth',
-    required: true,
-  })
-  @IsOptional()
-    signNonce?: number;
-
-  @ApiProperty({
-    description: 'Nonce to sign auth',
-    required: true,
-  })
-  @IsOptional()
-    token?: AuthToken;
+  public token?: AuthToken;
 }

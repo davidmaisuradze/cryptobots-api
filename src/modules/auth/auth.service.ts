@@ -1,12 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ethers } from 'ethers';
 import { v4 as uuidv4 } from 'uuid';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
-import { AuthTokenDto } from './dto';
+import { AuthTokenDto, LoginDto, RegisterDto } from './dto';
 import { AuthTokenUpdateDto } from './dto/auth.token.update.dto';
 import { AuthToken } from './entities/auth.token.entity';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -17,55 +18,54 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(AuthToken)
     private readonly authTokenRepository: Repository<AuthToken>,
-  ) {
+  ) { }
 
+  async register(userDto: RegisterDto) {
+    const { firstName, lastName, email, password } = userDto;
+
+    const user = await this.usersService.findOneByEmail(email);
+    if(user) {
+      throw new Error('User already exists');
+    }
+    
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const newUser = await this.usersService.create({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    });
+
+    delete user.password;
+
+    return newUser;
   }
 
-  async getNonce(address: string) {
-    let user = await this.usersService.findOneByAddress(address);
-    if (!user) {
-      user = await this.usersService.create({
-        address,
-        signNonce: Math.floor(Math.random() * 1000000),
-      });
+  async login(loginDto: LoginDto) {
+    const { email: loginEmail, password } = loginDto;
+
+    const user = await this.usersService.checkIfUserExists(loginEmail);
+
+    if (!await bcrypt.compare(password, user.password)) {
+      throw new BadRequestException('invalid credentials');
     }
 
-    if(user && !user.signNonce) {
-      user = await this.usersService.update(address, {
-        signNonce: Math.floor(Math.random() * 1000000),
-      });
-    }
+    const authToken = await this.createTokensPair({
+      email: loginEmail,
+    });
 
-    return user.signNonce;
-  }
+    const { accessToken, refreshToken } = authToken;
+    const token = this.createAuthToken(accessToken, refreshToken);
+    const { email, firstName, lastName } = await this.usersService.update(user.email, {
+      token,
+    });
 
-  async verifySignedLoginTransaction(address: string, signature: any) {
-    const user = await this.usersService.checkIfUserExists(address);
-
-    const message = `Sign this transaction to verify your identity: ${user.signNonce}`;
-    const signerAddress = ethers.utils.verifyMessage(message, signature);
-
-    if (signerAddress === address) {
-      const authToken = await this.createTokensPair({
-        address,
-      });
-
-      const { accessToken, refreshToken } = authToken;
-      const token = this.createAuthToken(accessToken, refreshToken);
-      const { email, firstName, lastName } = await this.usersService.update(user.address, {
-        signNonce: Math.floor(Math.random() * 1000000),
-        token,
-      });
-
-      return {
-        token,
-        email,
-        firstName,
-        lastName,
-      };
-    } else {
-      throw new UnauthorizedException();
-    }
+    return {
+      email,
+      firstName,
+      lastName,
+    };
   } 
 
   public async createTokensPair(jwtPayload: JwtPayload): Promise<AuthTokenDto> {
@@ -84,11 +84,11 @@ export class AuthService {
   }
 
   public async validateUser(payload: JwtPayload): Promise<User> {
-    return await this.usersService.findOneByAddress(payload.address);
+    return await this.usersService.findOneByEmail(payload.email);
   }
 
-  public async logout(payload: JwtPayload): Promise<DeleteResult> {
-    const tokenId = await this.usersService.nullifyToken(payload.address);
+  public async logout(email: string): Promise<DeleteResult> {
+    const tokenId = await this.usersService.nullifyToken(email);
     return this.authTokenRepository.delete(tokenId);
   }
 

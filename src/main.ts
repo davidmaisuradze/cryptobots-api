@@ -9,5 +9,5 @@ process.on('unhandledRejection', (reason, p) => {
 void (async () => {
   const app = await ApplicationContext();
 
-  await app.listen(process.env.APP_PORT || 3000);
+  await app.listen(process.env.APP_PORT || 3009);
 })();

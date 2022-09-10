@@ -31,10 +31,6 @@ export class UsersService {
     return await this.userRepository.findOne({ where: { id } });
   }
 
-  async findOneByAddress(address: string) {
-    return await this.userRepository.findOne({ where: { address } });
-  }
-
   async findOneByEmail(email: string): Promise<User> {
     return await this.userRepository.findOne({ where: { email } });
   }
@@ -49,13 +45,13 @@ export class UsersService {
     return await this.userRepository.save(updatedUser);
   }
 
-  async remove(address: string) {
-    await this.checkIfUserExists(address);
-    return await this.userRepository.delete({ address });
+  async remove(email: string) {
+    await this.checkIfUserExists(email);
+    return await this.userRepository.delete({ email });
   }
 
-  public async nullifyToken(address: string): Promise<string> {
-    const user = await this.findOneByAddress(address);
+  public async nullifyToken(email: string): Promise<string> {
+    const user = await this.findOneByEmail(email);
     if (!isEmpty(user)) {
       const tokenId = user.token.id;
       user.token = null;
@@ -64,8 +60,8 @@ export class UsersService {
     }
   }
 
-  async checkIfUserExists(address: string) {
-    const user = await this.findOneByAddress(address);
+  async checkIfUserExists(email: string) {
+    const user = await this.findOneByEmail(email);
     if (!user) {
       throw new Error('User not exists');
     }

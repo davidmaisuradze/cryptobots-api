@@ -15,7 +15,7 @@ export class User extends CoreEntity {
     type: 'varchar',
     nullable: true,
   })
-    firstName: string;
+  public firstName: string;
 
   @ApiProperty({ readOnly: true })
   @Expose()
@@ -24,28 +24,7 @@ export class User extends CoreEntity {
     type: 'varchar',
     nullable: true,
   })
-    lastName: string;
-
-  @Column({
-    type: 'varchar',
-    unique: true,
-  })
-    address: string;
-
-  @Column({
-    type: 'bigint',
-    nullable: true,
-  })
-    signNonce: number;
-
-  @ApiProperty({ readOnly: true })
-  @OneToOne(() => AuthToken, {
-    eager: true,
-    cascade: true,
-  })
-  @JoinColumn()
-  @Expose({ groups: ['showTokens'] })
-    token: AuthToken;
+  public lastName: string;
 
   @ApiProperty({ readOnly: true, type: 'string', format: 'email' })
   @Allow()
@@ -54,7 +33,24 @@ export class User extends CoreEntity {
     type: 'varchar',
     nullable: true,
   })
-    email: string;
+  public email: string;
+
+  @ApiProperty({ readOnly: true })
+  @Allow()
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  public password: string;
+
+  @ApiProperty({ readOnly: true })
+  @OneToOne(() => AuthToken, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinColumn()
+  @Expose({ groups: ['showTokens'] })
+  public token: AuthToken;
 
   @Column({
     type: 'boolean',
@@ -62,5 +58,5 @@ export class User extends CoreEntity {
   })
   @Allow()
   @Expose()
-    isActive = false;
+  public isActive = false;
 }

@@ -1,3 +1,5 @@
+export * from './register.dto';
+export * from './login.dto';
 export * from './auth.token.dto';
-export * from './auth.refresh.token.dto';
-export * from './auth.reset.password.request.dto';
+export * from './refresh.token.dto';
+export * from './reset.password.request.dto';

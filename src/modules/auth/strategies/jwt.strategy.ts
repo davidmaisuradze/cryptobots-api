@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         .plus({ second: Number(process.env.REFRESH_TOKEN_EXPIRES_IN_SECONDS) });
 
       if (DateTime.local().setZone('UTC') >= refreshTokenExpirationDate) {
-        await this.authService.logout(payload);
+        await this.authService.logout(payload.email);
         return null;
       }
       await this.authService.updateToken(user.token.id, {
