@@ -10,7 +10,7 @@ export class SeederService {
       firstName: 'David',
       lastName: 'Maisuradze',
       email: 'datomaisuradze95@gmail.com',
-      address: '0x0Db7C90c4d31626a8B62A403D6B28340D0e1191C',
+      password: '',
     };
     const user = await this.userService.findOneByEmail(userToCreate.email);
 

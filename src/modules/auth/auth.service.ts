@@ -37,7 +37,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    delete user.password;
+    delete newUser.password;
 
     return newUser;
   }
