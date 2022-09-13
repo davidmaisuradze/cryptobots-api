@@ -65,6 +65,7 @@ export class AuthService {
       email,
       firstName,
       lastName,
+      token,
     };
   } 
 
