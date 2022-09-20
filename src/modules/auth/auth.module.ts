@@ -7,14 +7,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthToken } from './entities/auth.token.entity';
+import { ResetPasswordRequest } from './entities/reset.password.request.entity';
 import { UsersModule } from './../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   controllers: [AuthController],
   imports: [
-    TypeOrmModule.forFeature([AuthToken]),
+    TypeOrmModule.forFeature([AuthToken, ResetPasswordRequest]),
     UsersModule,
+    ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

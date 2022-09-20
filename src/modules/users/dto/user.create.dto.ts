@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsUserAlreadyExists } from '../../../validators';
 import { AuthToken } from '../../auth/entities/auth.token.entity';
 
-export class CreateUserDto {
+export class UserCreateDto {
   @ApiProperty({
     description: 'First name',
     required: true,

@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { isEmpty } from 'lodash';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserCreateDto } from './dto/user.create.dto';
 import { User } from './entities/user.entity';
+import { ResetPasswordRequest } from '../auth/entities/reset.password.request.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +15,7 @@ export class UsersService {
 
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: UserCreateDto) {
     return await this.userRepository.save(this.userRepository.create(createUserDto));
   }
 
@@ -35,7 +35,7 @@ export class UsersService {
     return await this.userRepository.findOne({ where: { email } });
   }
 
-  async update(address: string, updateUserDto: UpdateUserDto) {
+  async update(address: string, updateUserDto: Partial<User>) {
     const user = await this.checkIfUserExists(address);
 
     const updatedUser = {
@@ -67,5 +67,45 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  public async findOneByRefreshToken(refreshToken: string): Promise<User> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoinAndSelect('user.token', 'token', 'token.refreshToken = :refreshToken', {
+        refreshToken,
+      })
+      .getOne();
+  }
+
+  public async findOneByEmailJoinResetPasswordRequest(email: string): Promise<User> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .andWhere('email = :email', { email })
+      .andWhere('removed_at IS NULL')
+      .leftJoinAndSelect('user.resetPasswordRequest', 'resetPasswordRequest')
+      .getOne();
+  }
+
+  public async requestResetPassword(user: User, passwordRequest: ResetPasswordRequest): Promise<void> {
+    user.resetPasswordRequest = passwordRequest;
+    await this.save(user);
+    
+    console.log('----- send email', {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      token: passwordRequest.token,
+    });
+  }
+
+  public async findOneByPasswordResetToken(token: string): Promise<User> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoinAndSelect('user.resetPasswordRequest', 'resetPasswordRequest', 'resetPasswordRequest.token = :token', {
+        token,
+      })
+      .leftJoinAndSelect('user.token', 'token')
+      .getOne();
   }
 }

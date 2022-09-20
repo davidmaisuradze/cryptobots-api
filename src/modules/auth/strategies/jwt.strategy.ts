@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Logger } from '@nestjs/common';
 import { DateTime } from 'luxon';
 
-import { JwtPayload } from '../../auth/interfaces/jwt-payload.interface';
+import { IJwtPayload } from '../../auth/interfaces/jwt-payload.interface';
 import { AuthService } from '../auth.service';
 import { User } from '../../users/entities/user.entity';
 
@@ -18,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     this.logger = new Logger(JwtStrategy.name);
   }
 
-  public async validate(payload: JwtPayload): Promise<User> {
+  public async validate(payload: IJwtPayload): Promise<User> {
     try {
       const user = await this.authService.validateUser(payload);
       if (!user.token) {

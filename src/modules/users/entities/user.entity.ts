@@ -4,6 +4,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { Allow } from 'class-validator';
 import { CoreEntity } from '../../application/entities/core.entity';
 import { AuthToken } from '../../auth/entities/auth.token.entity';
+import { ResetPasswordRequest } from '../../auth/entities/reset.password.request.entity';
 
 @Exclude()
 @Entity('users')
@@ -51,6 +52,15 @@ export class User extends CoreEntity {
   @JoinColumn()
   @Expose({ groups: ['showTokens'] })
   public token: AuthToken;
+
+  @OneToOne(() => ResetPasswordRequest, {
+    eager: false,
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Allow()
+  public resetPasswordRequest: ResetPasswordRequest;
 
   @Column({
     type: 'boolean',

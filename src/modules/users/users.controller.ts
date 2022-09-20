@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UnauthorizedException } from '@nestjs/common';
 
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserCreateDto } from './dto/user.create.dto';
+import { UserUpdateDto } from './dto/user.update.dto';
 import { JwtAuthGuard } from '../auth/guards';
 import { CurrentUser } from '../auth/decorators';
 import { User } from './entities/user.entity';
@@ -26,7 +26,7 @@ export class UsersController {
   }
   
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: UserCreateDto) {
     return this.usersService.create(createUserDto);
   }
 
@@ -41,7 +41,7 @@ export class UsersController {
   }
 
   @Patch(':address')
-  update(@Param('address') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('address') id: string, @Body() updateUserDto: UserUpdateDto) {
     return this.usersService.update(id, updateUserDto);
   }
 

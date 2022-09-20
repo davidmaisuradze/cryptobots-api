@@ -1,9 +1,11 @@
-import { IsNotEmpty, MinLength, Matches, IsEmail } from 'class-validator';
+
+import { IsNotEmpty, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { IsPasswordConfirmedBy } from '../../../validators';
+import { AuthPasswordDto } from './auth.password.dto';
 
-export class RegisterDto {
+export class AuthRegisterDto extends AuthPasswordDto {
   @ApiProperty({
     description: 'First Name',
     required: true,
@@ -25,17 +27,6 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsEmail()
   public email: string;
-
-  @ApiProperty({
-    description: 'Password',
-    required: true,
-  })
-  @IsNotEmpty()
-  @MinLength(8)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\W_]).*$/, {
-    message: 'Must contain at least one number or special character, both upper and lower case letters',
-  })
-  public password: string;
 
   @IsPasswordConfirmedBy('password')
   @ApiProperty({
