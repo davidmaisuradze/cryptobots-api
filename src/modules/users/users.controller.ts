@@ -1,14 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UnauthorizedException } from '@nestjs/common';
+
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserCreateDto } from './dto/user.create.dto';
+import { UserUpdateDto } from './dto/user.update.dto';
+import { JwtAuthGuard } from '../auth/guards';
+import { CurrentUser } from '../auth/decorators';
+import { User } from './entities/user.entity';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+  ) {}
 
+  @Get('user')
+  async user(@CurrentUser() currentUser: User) {
+    try {
+      const { password, token, ...result } = await this.usersService.findOneByEmail(currentUser.email);
+
+      return result;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+  
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: UserCreateDto) {
     return this.usersService.create(createUserDto);
   }
 
@@ -17,18 +35,18 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Get(':address')
+  findOneById(@Param('id') id: string) {
+    return this.usersService.findOneById(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch(':address')
+  update(@Param('address') id: string, @Body() updateUserDto: UserUpdateDto) {
+    return this.usersService.update(id, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Delete(':address')
+  remove(@Param('address') id: string) {
+    return this.usersService.remove(id);
   }
 }

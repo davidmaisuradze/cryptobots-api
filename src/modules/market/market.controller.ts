@@ -1,9 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { MarketService } from './market.service';
 import { CreateMarketDto } from './dto/create-market.dto';
 import { UpdateMarketDto } from './dto/update-market.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthActiveOnlyGuard } from '../auth/guards';
 
 @Controller('market')
+@Controller('edge')
+@ApiTags('edge')
+@UseGuards(JwtAuthActiveOnlyGuard)
+@ApiBearerAuth('jwt')
+@ApiTags('jwt')
 export class MarketController {
   constructor(private readonly marketService: MarketService) {}
 

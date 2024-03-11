@@ -9,7 +9,7 @@ export class MarketService {
   }
 
   findAll() {
-    return `This action returns all market`;
+    return 'This action returns all market';
   }
 
   findOne(id: number) {

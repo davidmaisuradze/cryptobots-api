@@ -1,11 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 import { Allow } from 'class-validator';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { CoreEntity } from '../../application/entities/core.entity';
+import { AuthToken } from '../../auth/entities/auth.token.entity';
+import { ResetPasswordRequest } from '../../auth/entities/reset.password.request.entity';
 
 @Exclude()
 @Entity('users')
-export class User {
+export class User extends CoreEntity {
   @ApiProperty({ readOnly: true })
   @Expose()
   @Allow()
@@ -13,7 +16,7 @@ export class User {
     type: 'varchar',
     nullable: true,
   })
-  firstName: string;
+  public firstName: string;
 
   @ApiProperty({ readOnly: true })
   @Expose()
@@ -22,22 +25,42 @@ export class User {
     type: 'varchar',
     nullable: true,
   })
-  lastName: string;
-
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  password: string;
+  public lastName: string;
 
   @ApiProperty({ readOnly: true, type: 'string', format: 'email' })
   @Allow()
   @Expose()
   @Column({
     type: 'varchar',
-    unique: true,
+    nullable: true,
   })
-  email: string;
+  public email: string;
+
+  @ApiProperty({ readOnly: true })
+  @Allow()
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  public password: string;
+
+  @ApiProperty({ readOnly: true })
+  @OneToOne(() => AuthToken, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinColumn()
+  @Expose({ groups: ['showTokens'] })
+  public token: AuthToken;
+
+  @OneToOne(() => ResetPasswordRequest, {
+    eager: false,
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Allow()
+  public resetPasswordRequest: ResetPasswordRequest;
 
   @Column({
     type: 'boolean',
@@ -45,11 +68,5 @@ export class User {
   })
   @Allow()
   @Expose()
-  isActive = false;
-
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  salt: string;
+  public isActive = false;
 }
